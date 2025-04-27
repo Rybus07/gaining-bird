@@ -27,7 +27,7 @@ def get_baseline(lie, distance):
 def get_baseline(lie, distance):
     if lie == 'Green':
         # for putts your putt_lookup is also keyed by distance
-        return putt_lookup.get(distance, {}).get('Baseline')  
+        return putt_lookup.get(distance, {}).get(lie)  
         # <-- adjust 'Baseline' to whatever the column name is in putt_baseline.csv
     else:
         # look up the row by distance, then pick off the correct lie column
