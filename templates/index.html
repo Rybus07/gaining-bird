@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Strokes Gained Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #009879;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Strokes Gained Calculator</h1>
+    <form id="shotForm">
+      <label for="start_lie">Initial Lie</label>
+      <select id="start_lie" name="start_lie" required>
+        <option value="Tee">Tee</option>
+        <option value="Fairway">Fairway</option>
+        <option value="Rough">Rough</option>
+        <option value="Sand">Sand</option>
+        <option value="Green">Green</option> <!-- Added Green option -->
+      </select>
+
+      <label for="start_distance">Initial Distance</label>
+      <input type="number" id="start_distance" name="start_distance" min="0" required>
+
+      <label for="end_lie">Final Lie</label>
+      <select id="end_lie" name="end_lie" required>
+        <option value="Fairway">Fairway</option>
+        <option value="Rough">Rough</option>
+        <option value="Sand">Sand</option>
+        <option value="Green">Green</option>
+        <option value="Hole">Hole</option>
+      </select>
+
+      <label for="end_distance">Final Distance</label>
+      <input type="number" id="end_distance" name="end_distance" min="0" required>
+
+      <button type="submit">Calculate</button>
+    </form>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('shotForm');
+    const resultDiv = document.getElementById('result');
+    const startDistanceInput = document.getElementById('start_distance');
+    const endDistanceInput = document.getElementById('end_distance');
+    const startLieSelect = document.getElementById('start_lie');
+    const endLieSelect = document.getElementById('end_lie');
+
+    // Watch for changes in the "start_lie" dropdown
+    startLieSelect.addEventListener('change', function() {
+      if (startLieSelect.value === 'Green') {
+        startDistanceInput.setAttribute('placeholder', 'Initial Distance (feet)');
+        //startDistanceInput.setAttribute('name', 'start_distance_feet'); // Change the name to reflect feet
+      } else {
+        startDistanceInput.setAttribute('placeholder', 'Initial Distance (yards)');
+        //startDistanceInput.setAttribute('name', 'start_distance'); // Change back to yards
+      }
+    });
+
+    // Watch for changes in the "end_lie" dropdown
+    endLieSelect.addEventListener('change', function() {
+      if (endLieSelect.value === 'Green') {
+        endDistanceInput.setAttribute('placeholder', 'Final Distance (feet)');
+        //endDistanceInput.setAttribute('name', 'end_distance_feet'); // Change the name to reflect feet
+      } else {
+        endDistanceInput.setAttribute('placeholder', 'Final Distance (yards)');
+        //endDistanceInput.setAttribute('name', 'end_distance'); // Change back to yards
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        start_lie: form.start_lie.value,
+        start_distance: parseFloat(form.start_distance.value),
+        end_lie: form.end_lie.value,
+        end_distance: parseFloat(form.end_distance.value)
+      };
+
+      try {
+        const response = await fetch('/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          resultDiv.textContent = `Error: ${result.error}`;
+        } else {
+          resultDiv.textContent = `Strokes Gained: ${result.strokes_gained.toFixed(3)}`;
+        }
+      } catch (error) {
+        resultDiv.textContent = 'Something went wrong. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
+
